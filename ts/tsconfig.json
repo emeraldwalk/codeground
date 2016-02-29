@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"outFile": "../out/emeraldwalk.code_playground.js",
+		"sourceMap": true,
+		"target": "es5",
+		"experimentalDecorators": true,
+		"listFiles": true
+	},
+	"files": [
+		"../typings/tsd.d.ts",
+		"decorators.ts",
+		"module_init.ts",
+		"components/ace_editor.ts",
+		"components/code_sample.ts",
+		"components/js_editor.ts",
+		"components/ts_editor.ts",
+		"samples/simple_controller.ts"
+	]
+}

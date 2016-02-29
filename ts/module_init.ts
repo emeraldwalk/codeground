@@ -1,0 +1,1 @@
+var codePlaygroundModule = angular.module('emeraldwalk.code-playground', []);

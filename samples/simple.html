@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Basic TypeScript Compilation</title>
+	<link rel="stylesheet/less" type="text/css" href="../less/emeraldwalk.code_playground.less">
+	<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>-->
+	<script src="../lib/ace.js"></script>
+	<script src="../node_modules/typescript/lib/typescript.js"></script>
+	<script src="../bower_components/jquery/dist/jquery.js"></script>
+	<script src="../bower_components/angular/angular.js"></script>
+	<script src="../out/emeraldwalk.code_playground.js"></script>
+
+	<script src="../bower_components/less/dist/less.min.js"></script>
+</head>
+
+<body ng-app="emeraldwalk.code-playground">
+	<div ng-controller="SimpleController as vm">
+		<ew-code-sample html-content="vm.htmlOutput"
+						js-content="vm.tsOutput"></ew-code-sample>
+		<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
+		<div class="split-editor">
+			<ew-ts-editor output="vm.tsOutput = value"></ew-ts-editor>
+			<ew-js-editor source="vm.tsOutput"></ew-js-editor>
+		</div>
+	</div>
+</body>
+
+</html>
