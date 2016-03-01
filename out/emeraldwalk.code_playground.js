@@ -112,38 +112,57 @@ var Emeraldwalk;
                 function AceEditorComponent($scope, $element, $timeout) {
                     var _this = this;
                     $element.addClass('ew-ace-editor');
-                    var sourceEditor = ace.edit($element.get(0));
+                    var sourceEditor = ace.edit($element.find('div').get(0));
                     sourceEditor.$blockScrolling = Infinity;
                     sourceEditor.setTheme('ace/theme/monokai');
                     this._session = sourceEditor.getSession();
                     $scope.$watch(function () { return _this.mode; }, function () {
-                        _this._session.setMode("ace/mode/" + (_this.mode || 'html'));
+                        _this._session.setMode("ace/mode/" + _this.mode);
                     });
                     $scope.$watch(function () { return _this.source; }, function () {
-                        console.log('source:', _this.source);
-                        var value = _this._session.getValue();
                         var source = _this.source || '';
-                        if (source !== value) {
-                            _this._session.setValue(source);
+                        if (source !== _this.editorValue) {
+                            _this.editorValue = source;
                         }
                     });
+                    // ace editor changes (with a typing delay)
+                    var timeoutPromise;
                     this._session.on('change', function (e) {
-                        $timeout(function () {
-                            var value = _this._session.getValue();
-                            console.log('value:', value);
-                            if (_this.source !== value) {
-                                _this.source = value;
+                        $timeout.cancel(timeoutPromise);
+                        timeoutPromise = $timeout(function () {
+                            if (_this.source !== _this.editorValue) {
+                                _this.source = _this.editorValue;
                             }
-                        });
+                        }, 1000);
                     });
                 }
+                Object.defineProperty(AceEditorComponent.prototype, "editorValue", {
+                    get: function () {
+                        return this._session.getValue();
+                    },
+                    set: function (value) {
+                        this._session.setValue(value);
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(AceEditorComponent.prototype, "mode", {
+                    get: function () {
+                        return this._mode || 'html';
+                    },
+                    set: function (value) {
+                        this._mode = value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
                 AceEditorComponent = __decorate([
                     CodePlayground.component(codePlaygroundModule, 'ewAceEditor', {
                         scope: {
                             mode: '@',
                             source: '=?'
                         },
-                        template: "<div></div>"
+                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
                     CodePlayground.inject('$scope', '$element', '$timeout')
                 ], AceEditorComponent);
@@ -160,40 +179,51 @@ var Emeraldwalk;
         var Components;
         (function (Components) {
             var CodeSample = (function () {
-                function CodeSample($scope, $element, $timeout, $compile) {
+                function CodeSample($scope, $element, $compile) {
                     var _this = this;
                     this._$scope = $scope;
                     this._iframeElement = $('<iframe></iframe>').appendTo($element);
-                    this._$timeout = $timeout;
                     this._$compile = $compile;
-                    $scope.$watch(function () { return _this.htmlContent; }, function () { return _this._buildBody(); });
-                    $scope.$watch(function () { return _this.jsContent; }, function () { return _this._buildHead(); });
+                    $scope.$watchGroup([
+                        function () { return _this.cssContent; },
+                        function () { return _this.jsContent; },
+                        function () { return _this.htmlContent; }
+                    ], function () { return _this._rebuild(); });
                 }
+                CodeSample.prototype._rebuild = function () {
+                    this._buildHead();
+                    this._buildBody();
+                };
                 CodeSample.prototype._buildHead = function () {
-                    var headElement = this._iframeElement.contents().find('head');
-                    headElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
+                    var headElement = this._iframeElement.contents().find('head').empty();
+                    if (this.cssContent) {
+                        headElement.append("<style>" + this.cssContent + "</style>");
+                    }
+                    if (this.jsContent) {
+                        headElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
+                    }
                 };
                 CodeSample.prototype._buildBody = function () {
-                    var _this = this;
-                    this._$timeout(function () {
-                        var bodyElement = _this._iframeElement.contents().find('body').empty();
-                        try {
-                            var templateFn = _this._$compile(_this.htmlContent);
-                            var html = templateFn(_this._$scope);
-                            bodyElement.append(html);
-                        }
-                        catch (e) { }
-                    });
+                    var bodyElement = this._iframeElement.contents().find('body').empty();
+                    try {
+                        var templateFn = this._$compile(this.htmlContent);
+                        var html = templateFn(this._$scope);
+                        bodyElement.append(html);
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
                 };
                 CodeSample = __decorate([
                     CodePlayground.component(codePlaygroundModule, 'ewCodeSample', {
                         scope: {
-                            htmlContent: '=',
-                            jsContent: '='
+                            cssContent: '=?',
+                            jsContent: '=?',
+                            htmlContent: '=?',
                         },
                         template: "<div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$timeout', '$compile')
+                    CodePlayground.inject('$scope', '$element', '$compile')
                 ], CodeSample);
                 return CodeSample;
             }());
@@ -218,7 +248,7 @@ var Emeraldwalk;
                         scope: {
                             source: '=?'
                         },
-                        template: "<div></div>"
+                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
                     CodePlayground.inject('$scope', '$element', '$timeout')
                 ], JsEditorComponent);
@@ -243,23 +273,17 @@ var Emeraldwalk;
                     $scope.$watch(function () { return _this.source; }, function () {
                         if (_this.source !== undefined) {
                             var out = ts.transpile(_this.source);
-                            _this.outputExpression({ value: out });
+                            _this.onCompileExpression({ value: out });
                         }
                     });
-                    // this._session.on('change', (e) => {
-                    // 	var out = ts.transpile(this._session.getValue());
-                    // 	$timeout(() => {
-                    // 		this.outputExpression({value: out});
-                    // 	});
-                    // });
                 }
                 TsEditorComponent = __decorate([
                     CodePlayground.component(codePlaygroundModule, 'ewTsEditor', {
                         scope: {
                             source: '=?',
-                            outputExpression: '&output'
+                            onCompileExpression: '&onCompile'
                         },
-                        template: "<div></div>"
+                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
                     CodePlayground.inject('$scope', '$element', '$timeout')
                 ], TsEditorComponent);
@@ -269,6 +293,7 @@ var Emeraldwalk;
         })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
     })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
+var simpleSampleModule = angular.module('simpleSampleModule', ['emeraldwalk.code-playground']);
 var Emeraldwalk;
 (function (Emeraldwalk) {
     var CodePlayground;

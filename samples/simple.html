@@ -15,13 +15,18 @@
 	<script src="../bower_components/less/dist/less.min.js"></script>
 </head>
 
-<body ng-app="emeraldwalk.code-playground">
+<body ng-app="simpleSampleModule">
 	<div ng-controller="SimpleController as vm">
-		<ew-code-sample html-content="vm.htmlOutput"
-						js-content="vm.tsOutput"></ew-code-sample>
-		<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
+		<ew-code-sample css-content="vm.cssOutput"
+						js-content="vm.tsOutput"
+						html-content="vm.htmlOutput"></ew-code-sample>
 		<div class="split-editor">
-			<ew-ts-editor output="vm.tsOutput = value"></ew-ts-editor>
+			<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
+			<ew-ace-editor mode="css" source="vm.cssOutput"></ew-ace-editor>
+		</div>
+
+		<div class="split-editor">
+			<ew-ts-editor on-compile="vm.tsOutput = value"></ew-ts-editor>
 			<ew-js-editor source="vm.tsOutput"></ew-js-editor>
 		</div>
 	</div>

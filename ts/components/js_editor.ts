@@ -3,7 +3,7 @@ namespace Emeraldwalk.CodePlayground.Components {
 		scope: {
 			source: '=?'
 		},
-		template: `<div></div>`
+		template: `<div><h2>{{vm.mode}}</h2><div></div></div>`
 	})
 	@inject('$scope', '$element', '$timeout')
 	export class JsEditorComponent extends AceEditorComponent {

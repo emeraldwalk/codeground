@@ -4,11 +4,11 @@ namespace Emeraldwalk.CodePlayground.Components {
 			mode: '@',
 			source: '=?'
 		},
-		template: `<div></div>`
+		template: `<div><h2>{{vm.mode}}</h2><div></div></div>`
 	})
 	@inject('$scope', '$element', '$timeout')
 	export class AceEditorComponent {
-		protected _session: AceAjax.IEditSession;
+		private _session: AceAjax.IEditSession;
 
 		constructor(
 			$scope: ng.IScope,
@@ -17,37 +17,51 @@ namespace Emeraldwalk.CodePlayground.Components {
 
 			$element.addClass('ew-ace-editor');
 
-			var sourceEditor = ace.edit($element.get(0));
+			var sourceEditor = ace.edit($element.find('div').get(0));
 			sourceEditor.$blockScrolling = Infinity;
 			sourceEditor.setTheme('ace/theme/monokai');
 			this._session = sourceEditor.getSession();
 
 			$scope.$watch(() => this.mode, () => {
-				this._session.setMode(`ace/mode/${this.mode || 'html'}`);
+				this._session.setMode(`ace/mode/${this.mode}`);
 			});
 
 			$scope.$watch(() => this.source, () => {
-				console.log('source:', this.source);
-				var value = this._session.getValue();
 				var source = this.source || '';
 
-				if(source !== value) {
-					this._session.setValue(source);
+				if(source !== this.editorValue) {
+					this.editorValue = source;
 				}
 			});
 
+			// ace editor changes (with a typing delay)
+			var timeoutPromise;
 			this._session.on('change', (e) => {
-				$timeout(() => {
-					var value = this._session.getValue();
-					console.log('value:', value);
-					if(this.source !== value) {
-						this.source = value;
+				$timeout.cancel(timeoutPromise);
+				timeoutPromise = $timeout(() => {
+					if(this.source !== this.editorValue) {
+						this.source = this.editorValue;
 					}
-				});
+				}, 1000);
 			});
 		}
 
-		public mode: string;
+		protected get editorValue(): string {
+			return this._session.getValue();
+		}
+		protected set editorValue(value: string) {
+			this._session.setValue(value);
+		}
+
+		//public mode: string;
+		private _mode: string;
+		public get mode(): string {
+			return this._mode || 'html';
+		}
+		public set mode(value: string) {
+			this._mode = value;
+		}
+
 		public source: string;
 	}
 }

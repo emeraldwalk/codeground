@@ -2,9 +2,9 @@ namespace Emeraldwalk.CodePlayground.Components {
 	@component(codePlaygroundModule, 'ewTsEditor', {
 		scope: {
 			source: '=?',
-			outputExpression: '&output'
+			onCompileExpression: '&onCompile'
 		},
-		template: `<div></div>`
+		template: `<div><h2>{{vm.mode}}</h2><div></div></div>`
 	})
 	@inject('$scope', '$element', '$timeout')
 	export class TsEditorComponent extends AceEditorComponent {
@@ -16,19 +16,12 @@ namespace Emeraldwalk.CodePlayground.Components {
 			$scope.$watch(() => this.source, () => {
 				if (this.source !== undefined) {
 					var out = ts.transpile(this.source);
-					this.outputExpression({ value: out });
+					this.onCompileExpression({ value: out });
 				}
 			});
-
-			// this._session.on('change', (e) => {
-			// 	var out = ts.transpile(this._session.getValue());
-
-			// 	$timeout(() => {
-			// 		this.outputExpression({value: out});
-			// 	});
-			// });
 		}
 
-		public outputExpression: (config: Object) => any;
+		/** Parent $scope expression */
+		public onCompileExpression: (config: {value: string}) => any;
 	}
 }
