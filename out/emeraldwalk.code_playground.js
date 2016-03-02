@@ -181,6 +181,8 @@ var Emeraldwalk;
             var CodeSample = (function () {
                 function CodeSample($scope, $element, $compile) {
                     var _this = this;
+                    this.styleUrls = [];
+                    this.jsUrls = [];
                     this._$scope = $scope;
                     this._iframeElement = $('<iframe></iframe>').appendTo($element);
                     this._$compile = $compile;
@@ -196,9 +198,35 @@ var Emeraldwalk;
                 };
                 CodeSample.prototype._buildHead = function () {
                     var headElement = this._iframeElement.contents().find('head').empty();
+                    var iframeElementRaw = this._iframeElement.get(0);
+                    // clone page styles to iframe
+                    $("link[type='text/css']").clone().appendTo(headElement);
+                    $("style").clone().appendTo(headElement);
+                    this.styleUrls.forEach(function (url) {
+                        // var link = iframeElementRaw.contentWindow.document.createElement('link');
+                        // link.rel = url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet';
+                        // link.type = 'text/css';
+                        // link.href = url;
+                        // iframeElementRaw.contentWindow.document.head.appendChild(link);
+                        headElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
+                    });
                     if (this.cssContent) {
-                        headElement.append("<style>" + this.cssContent + "</style>");
+                        headElement.append("<style type=\"text/less\">" + this.cssContent + "</style>");
                     }
+                    var jsUrls = this.jsUrls.slice(0);
+                    // If less.js or less.min.js is in parent, copy the url
+                    $('head').find('script').each(function (i, elem) {
+                        if (elem.src && elem.src.match(/(less|less\.min)\.js$/)) {
+                            jsUrls.push(elem.src);
+                            return false;
+                        }
+                    });
+                    jsUrls.forEach(function (url) {
+                        var script = iframeElementRaw.contentWindow.document.createElement('script');
+                        script.type = "text/javascript";
+                        script.src = url;
+                        iframeElementRaw.contentWindow.document.head.appendChild(script);
+                    });
                     if (this.jsContent) {
                         headElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
                     }
@@ -217,6 +245,8 @@ var Emeraldwalk;
                 CodeSample = __decorate([
                     CodePlayground.component(codePlaygroundModule, 'ewCodeSample', {
                         scope: {
+                            styleUrls: '=?',
+                            jsUrls: '=?',
                             cssContent: '=?',
                             jsContent: '=?',
                             htmlContent: '=?',
