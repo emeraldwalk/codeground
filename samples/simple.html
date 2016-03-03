@@ -24,9 +24,8 @@
 						html-content="vm.htmlOutput"></ew-code-sample>
 		<div class="split-editor">
 			<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
-			<ew-ace-editor mode="less" source="vm.cssOutput"></ew-ace-editor>
+			<ew-less-editor on-compile="vm.lessOutput = value"></ew-less-editor>
 		</div>
-
 		<div class="split-editor">
 			<ew-ts-editor on-compile="vm.tsOutput = value"></ew-ts-editor>
 			<ew-js-editor source="vm.tsOutput"></ew-js-editor>

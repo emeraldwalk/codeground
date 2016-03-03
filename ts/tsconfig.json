@@ -13,6 +13,7 @@
 		"components/ace_editor.ts",
 		"components/code_sample.ts",
 		"components/js_editor.ts",
+		"components/less_editor.ts",
 		"components/ts_editor.ts",
 		"samples/simple_controller.ts"
 	]

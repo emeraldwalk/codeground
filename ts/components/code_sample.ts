@@ -47,15 +47,12 @@ namespace Emeraldwalk.CodePlayground.Components {
 			$("link[type='text/css']").clone().appendTo(headElement);
 			$("style").clone().appendTo(headElement);
 
+			// create links for style urls
 			this.styleUrls.forEach(url => {
-				// var link = iframeElementRaw.contentWindow.document.createElement('link');
-				// link.rel = url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet';
-				// link.type = 'text/css';
-				// link.href = url;
-				// iframeElementRaw.contentWindow.document.head.appendChild(link);
 				headElement.append(`<link rel="${url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet'}" type="text/css" href="${url}">`);
 			});
 
+			// create style tag for raw less / css
 			if (this.cssContent) {
 				headElement.append(`<style type="text/less">${this.cssContent}</style>`);
 			}
@@ -70,13 +67,16 @@ namespace Emeraldwalk.CodePlayground.Components {
 				}
 			});
 
+			// create script tags for all .js urls
 			jsUrls.forEach(url => {
+				// creating script tags via jQuery doesn't load the scripts, so have to use createElement
 				var script = iframeElementRaw.contentWindow.document.createElement('script');
 				script.type = "text/javascript";
 				script.src = url;
 				iframeElementRaw.contentWindow.document.head.appendChild(script);
 			});
 
+			// create script tag for raw .js
 			if (this.jsContent) {
 				headElement.append(`<script type="text/javascript">${this.jsContent}</script>`);
 			}

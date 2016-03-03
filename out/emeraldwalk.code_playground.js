@@ -202,14 +202,11 @@ var Emeraldwalk;
                     // clone page styles to iframe
                     $("link[type='text/css']").clone().appendTo(headElement);
                     $("style").clone().appendTo(headElement);
+                    // create links for style urls
                     this.styleUrls.forEach(function (url) {
-                        // var link = iframeElementRaw.contentWindow.document.createElement('link');
-                        // link.rel = url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet';
-                        // link.type = 'text/css';
-                        // link.href = url;
-                        // iframeElementRaw.contentWindow.document.head.appendChild(link);
                         headElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
                     });
+                    // create style tag for raw less / css
                     if (this.cssContent) {
                         headElement.append("<style type=\"text/less\">" + this.cssContent + "</style>");
                     }
@@ -221,12 +218,15 @@ var Emeraldwalk;
                             return false;
                         }
                     });
+                    // create script tags for all .js urls
                     jsUrls.forEach(function (url) {
+                        // creating script tags via jQuery doesn't load the scripts, so have to use createElement
                         var script = iframeElementRaw.contentWindow.document.createElement('script');
                         script.type = "text/javascript";
                         script.src = url;
                         iframeElementRaw.contentWindow.document.head.appendChild(script);
                     });
+                    // create script tag for raw .js
                     if (this.jsContent) {
                         headElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
                     }
@@ -285,6 +285,46 @@ var Emeraldwalk;
                 return JsEditorComponent;
             }(Components.AceEditorComponent));
             Components.JsEditorComponent = JsEditorComponent;
+        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
+    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+})(Emeraldwalk || (Emeraldwalk = {}));
+var Emeraldwalk;
+(function (Emeraldwalk) {
+    var CodePlayground;
+    (function (CodePlayground) {
+        var Components;
+        (function (Components) {
+            var LessEditorComponent = (function (_super) {
+                __extends(LessEditorComponent, _super);
+                function LessEditorComponent($scope, $element, $timeout) {
+                    var _this = this;
+                    _super.call(this, $scope, $element, $timeout);
+                    this.mode = 'less';
+                    $scope.$watch(function () { return _this.source; }, function () {
+                        if (_this.source !== undefined) {
+                            $element.find('style').remove();
+                            var style = $("<style type=\"text/less\">" + _this.source + "</style>")
+                                .appendTo($element);
+                            // clear any less errors and recompile
+                            $('.less-error-message').remove();
+                            less.refresh();
+                            _this.onCompileExpression({ value: style.text() });
+                        }
+                    });
+                }
+                LessEditorComponent = __decorate([
+                    CodePlayground.component(codePlaygroundModule, 'ewLessEditor', {
+                        scope: {
+                            source: '=?',
+                            onCompileExpression: '&onCompile'
+                        },
+                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
+                    }),
+                    CodePlayground.inject('$scope', '$element', '$timeout')
+                ], LessEditorComponent);
+                return LessEditorComponent;
+            }(Components.AceEditorComponent));
+            Components.LessEditorComponent = LessEditorComponent;
         })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
     })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
