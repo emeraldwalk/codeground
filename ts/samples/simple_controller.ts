@@ -1,7 +1,7 @@
 var simpleSampleModule = angular.module('simpleSampleModule', ['emeraldwalk.code-playground']);
 
-namespace Emeraldwalk.CodePlayground.Samples {
-	@controller(codePlaygroundModule, 'SimpleController')
+namespace Emeraldwalk.Codeground.Samples {
+	@controller(codegroundModule, 'SimpleController')
 	@inject('$scope')
 	export class SimpleController {
 		constructor($scope: ng.IScope) {

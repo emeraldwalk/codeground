@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         function inject() {
             var injectableKeys = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -22,7 +22,7 @@ var Emeraldwalk;
                 injectableConstructor.$inject = injectableKeys;
             };
         }
-        CodePlayground.inject = inject;
+        Codeground.inject = inject;
         function injected() {
             var injectables = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -32,14 +32,14 @@ var Emeraldwalk;
                 injectableConstructor.$inject = injectables.map(function (inj) { return inj.injectAs; });
             };
         }
-        CodePlayground.injected = injected;
+        Codeground.injected = injected;
         function service(ngModule, injectAs) {
             return function (serviceConstructor) {
                 serviceConstructor.injectAs = injectAs;
                 ngModule.service(injectAs, serviceConstructor);
             };
         }
-        CodePlayground.service = service;
+        Codeground.service = service;
         function decorator(ngModule, injectAs, directiveOverrides) {
             return function (decoratorConstructor) {
                 // tag constructor function with injector key
@@ -62,14 +62,14 @@ var Emeraldwalk;
                 });
             };
         }
-        CodePlayground.decorator = decorator;
+        Codeground.decorator = decorator;
         function controller(ngModule, injectAs) {
             return function (controllerConstructor) {
                 controllerConstructor.injectAs = injectAs;
                 ngModule.controller(injectAs, controllerConstructor);
             };
         }
-        CodePlayground.controller = controller;
+        Codeground.controller = controller;
         function component(ngModule, injectAs, directiveOverrides) {
             return function (componentConstructor) {
                 // tag constructor function with injector key
@@ -98,14 +98,14 @@ var Emeraldwalk;
                 ngModule.directive(injectAs, directiveFactory);
             };
         }
-        CodePlayground.component = component;
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        Codeground.component = component;
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
-var codePlaygroundModule = angular.module('emeraldwalk.code-playground', []);
+var codegroundModule = angular.module('emeraldwalk.code-playground', []);
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Components;
         (function (Components) {
             var AceEditorComponent = (function () {
@@ -157,25 +157,25 @@ var Emeraldwalk;
                     configurable: true
                 });
                 AceEditorComponent = __decorate([
-                    CodePlayground.component(codePlaygroundModule, 'ewAceEditor', {
+                    Codeground.component(codegroundModule, 'ewAceEditor', {
                         scope: {
                             mode: '@',
                             source: '=?'
                         },
                         template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$timeout')
+                    Codeground.inject('$scope', '$element', '$timeout')
                 ], AceEditorComponent);
                 return AceEditorComponent;
             }());
             Components.AceEditorComponent = AceEditorComponent;
-        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Components;
         (function (Components) {
             var CodeSample = (function () {
@@ -187,6 +187,8 @@ var Emeraldwalk;
                     this._iframeElement = $('<iframe></iframe>').appendTo($element);
                     this._$compile = $compile;
                     $scope.$watchGroup([
+                        function () { return _this.styleUrls; },
+                        function () { return _this.jsUrls; },
                         function () { return _this.cssContent; },
                         function () { return _this.jsContent; },
                         function () { return _this.htmlContent; }
@@ -197,53 +199,46 @@ var Emeraldwalk;
                     this._buildBody();
                 };
                 CodeSample.prototype._buildHead = function () {
-                    var headElement = this._iframeElement.contents().find('head').empty();
-                    var iframeElementRaw = this._iframeElement.get(0);
-                    // clone page styles to iframe
-                    $("link[type='text/css']").clone().appendTo(headElement);
-                    $("style").clone().appendTo(headElement);
+                    var iHeadElement = this._iframeElement.contents().find('head').empty();
+                    var iElementRaw = this._iframeElement.get(0);
+                    // clone page styles to iframe head
+                    $("head link[type='text/css']").clone().appendTo(iHeadElement);
+                    $("head style").clone().appendTo(iHeadElement);
                     // create links for style urls
                     this.styleUrls.forEach(function (url) {
-                        headElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
+                        iHeadElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
                     });
-                    // create style tag for raw less / css
+                    // create style tag for raw css wrapped in a sandboxed context
                     if (this.cssContent) {
-                        headElement.append("<style type=\"text/less\">" + this.cssContent + "</style>");
+                        iHeadElement.append("<style type=\"text/css\">" + this.cssContent + "</style>");
                     }
-                    var jsUrls = this.jsUrls.slice(0);
-                    // If less.js or less.min.js is in parent, copy the url
-                    $('head').find('script').each(function (i, elem) {
-                        if (elem.src && elem.src.match(/(less|less\.min)\.js$/)) {
-                            jsUrls.push(elem.src);
-                            return false;
-                        }
-                    });
                     // create script tags for all .js urls
-                    jsUrls.forEach(function (url) {
+                    this.jsUrls.forEach(function (url) {
                         // creating script tags via jQuery doesn't load the scripts, so have to use createElement
-                        var script = iframeElementRaw.contentWindow.document.createElement('script');
+                        var script = iElementRaw.contentWindow.document.createElement('script');
                         script.type = "text/javascript";
                         script.src = url;
-                        iframeElementRaw.contentWindow.document.head.appendChild(script);
+                        iElementRaw.contentWindow.document.head.appendChild(script);
                     });
                     // create script tag for raw .js
                     if (this.jsContent) {
-                        headElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
+                        iHeadElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
                     }
                 };
                 CodeSample.prototype._buildBody = function () {
-                    var bodyElement = this._iframeElement.contents().find('body').empty();
+                    var iBodyElement = this._iframeElement.contents().find('body');
+                    iBodyElement.empty();
                     try {
                         var templateFn = this._$compile(this.htmlContent);
                         var html = templateFn(this._$scope);
-                        bodyElement.append(html);
+                        iBodyElement.append(html);
                     }
                     catch (e) {
                         console.log(e);
                     }
                 };
                 CodeSample = __decorate([
-                    CodePlayground.component(codePlaygroundModule, 'ewCodeSample', {
+                    Codeground.component(codegroundModule, 'ewCodeSample', {
                         scope: {
                             styleUrls: '=?',
                             jsUrls: '=?',
@@ -253,18 +248,18 @@ var Emeraldwalk;
                         },
                         template: "<div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$compile')
+                    Codeground.inject('$scope', '$element', '$compile')
                 ], CodeSample);
                 return CodeSample;
             }());
             Components.CodeSample = CodeSample;
-        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Components;
         (function (Components) {
             var JsEditorComponent = (function (_super) {
@@ -274,64 +269,59 @@ var Emeraldwalk;
                     this.mode = 'javascript';
                 }
                 JsEditorComponent = __decorate([
-                    CodePlayground.component(codePlaygroundModule, 'ewJsEditor', {
+                    Codeground.component(codegroundModule, 'ewJsEditor', {
                         scope: {
                             source: '=?'
                         },
                         template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$timeout')
+                    Codeground.inject('$scope', '$element', '$timeout')
                 ], JsEditorComponent);
                 return JsEditorComponent;
             }(Components.AceEditorComponent));
             Components.JsEditorComponent = JsEditorComponent;
-        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Components;
         (function (Components) {
             var LessEditorComponent = (function (_super) {
                 __extends(LessEditorComponent, _super);
-                function LessEditorComponent($scope, $element, $timeout) {
+                function LessEditorComponent($scope, $element, $timeout, lessService) {
                     var _this = this;
                     _super.call(this, $scope, $element, $timeout);
                     this.mode = 'less';
                     $scope.$watch(function () { return _this.source; }, function () {
                         if (_this.source !== undefined) {
-                            $element.find('style').remove();
-                            var style = $("<style type=\"text/less\">" + _this.source + "</style>")
-                                .appendTo($element);
-                            // clear any less errors and recompile
-                            $('.less-error-message').remove();
-                            less.refresh();
-                            _this.onCompileExpression({ value: style.text() });
+                            var css = lessService.compile(_this.source);
+                            _this.onCompileExpression({ value: css });
                         }
                     });
                 }
                 LessEditorComponent = __decorate([
-                    CodePlayground.component(codePlaygroundModule, 'ewLessEditor', {
+                    Codeground.component(codegroundModule, 'ewLessEditor', {
                         scope: {
                             source: '=?',
                             onCompileExpression: '&onCompile'
                         },
                         template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$timeout')
+                    Codeground.inject('$scope', '$element', '$timeout', 'lessService')
                 ], LessEditorComponent);
                 return LessEditorComponent;
             }(Components.AceEditorComponent));
             Components.LessEditorComponent = LessEditorComponent;
-        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Components;
         (function (Components) {
             var TsEditorComponent = (function (_super) {
@@ -348,26 +338,55 @@ var Emeraldwalk;
                     });
                 }
                 TsEditorComponent = __decorate([
-                    CodePlayground.component(codePlaygroundModule, 'ewTsEditor', {
+                    Codeground.component(codegroundModule, 'ewTsEditor', {
                         scope: {
                             source: '=?',
                             onCompileExpression: '&onCompile'
                         },
                         template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
                     }),
-                    CodePlayground.inject('$scope', '$element', '$timeout')
+                    Codeground.inject('$scope', '$element', '$timeout')
                 ], TsEditorComponent);
                 return TsEditorComponent;
             }(Components.AceEditorComponent));
             Components.TsEditorComponent = TsEditorComponent;
-        })(Components = CodePlayground.Components || (CodePlayground.Components = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
+})(Emeraldwalk || (Emeraldwalk = {}));
+var Emeraldwalk;
+(function (Emeraldwalk) {
+    var Codeground;
+    (function (Codeground) {
+        var Services;
+        (function (Services) {
+            var LessService = (function () {
+                function LessService() {
+                }
+                /** Compile less to css using a temporary <style> tag and less compiler. */
+                LessService.prototype.compile = function (lessStr) {
+                    var style = $("<style id=\"less-service-tmp\" type=\"text/less\">" + lessStr + "</style>");
+                    style.appendTo('body');
+                    // clear any less errors and recompile
+                    $('.less-error-message').remove();
+                    less.refresh();
+                    var result = style.text();
+                    style.remove();
+                    return result;
+                };
+                LessService = __decorate([
+                    Codeground.service(codegroundModule, 'lessService')
+                ], LessService);
+                return LessService;
+            }());
+            Services.LessService = LessService;
+        })(Services = Codeground.Services || (Codeground.Services = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var simpleSampleModule = angular.module('simpleSampleModule', ['emeraldwalk.code-playground']);
 var Emeraldwalk;
 (function (Emeraldwalk) {
-    var CodePlayground;
-    (function (CodePlayground) {
+    var Codeground;
+    (function (Codeground) {
         var Samples;
         (function (Samples) {
             var SimpleController = (function () {
@@ -378,13 +397,13 @@ var Emeraldwalk;
                     });
                 }
                 SimpleController = __decorate([
-                    CodePlayground.controller(codePlaygroundModule, 'SimpleController'),
-                    CodePlayground.inject('$scope')
+                    Codeground.controller(codegroundModule, 'SimpleController'),
+                    Codeground.inject('$scope')
                 ], SimpleController);
                 return SimpleController;
             }());
             Samples.SimpleController = SimpleController;
-        })(Samples = CodePlayground.Samples || (CodePlayground.Samples = {}));
-    })(CodePlayground = Emeraldwalk.CodePlayground || (Emeraldwalk.CodePlayground = {}));
+        })(Samples = Codeground.Samples || (Codeground.Samples = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 //# sourceMappingURL=emeraldwalk.code_playground.js.map

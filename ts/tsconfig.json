@@ -15,6 +15,7 @@
 		"components/js_editor.ts",
 		"components/less_editor.ts",
 		"components/ts_editor.ts",
+		"services/less_service.ts",
 		"samples/simple_controller.ts"
 	]
 }

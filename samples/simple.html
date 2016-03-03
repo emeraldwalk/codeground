@@ -17,18 +17,25 @@
 
 <body ng-app="simpleSampleModule">
 	<div ng-controller="SimpleController as vm">
-		<ew-code-sample xjs-urls="['../bower_components/less/dist/less.min.js']"
-						xstyle-urls="['../less/emeraldwalk.code_playground.less']"
-						css-content="vm.cssOutput"
+		<div class="pull-left">
+			<div class="split-editor">
+				<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
+			</div>
+			<div class="split-editor">
+				<ew-less-editor on-compile="vm.lessOutput = value"></ew-less-editor>
+				<ew-ace-editor mode="css" source="vm.lessOutput"></ew-ace-editor>
+			</div>
+			<div class="split-editor">
+				<ew-ts-editor on-compile="vm.tsOutput = value"></ew-ts-editor>
+				<ew-js-editor source="vm.tsOutput"></ew-js-editor>
+			</div>
+		</div>
+		<div class="pull-left output">
+			<h2>Output</h2>
+			<ew-code-sample xstyle-urls="['../less/emeraldwalk.code_playground.less']"
+						css-content="vm.lessOutput"
 						js-content="vm.tsOutput"
 						html-content="vm.htmlOutput"></ew-code-sample>
-		<div class="split-editor">
-			<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
-			<ew-less-editor on-compile="vm.lessOutput = value"></ew-less-editor>
-		</div>
-		<div class="split-editor">
-			<ew-ts-editor on-compile="vm.tsOutput = value"></ew-ts-editor>
-			<ew-js-editor source="vm.tsOutput"></ew-js-editor>
 		</div>
 	</div>
 </body>

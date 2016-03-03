@@ -1,5 +1,5 @@
-namespace Emeraldwalk.CodePlayground.Components {
-	@component(codePlaygroundModule, 'ewTsEditor', {
+namespace Emeraldwalk.Codeground.Components {
+	@component(codegroundModule, 'ewTsEditor', {
 		scope: {
 			source: '=?',
 			onCompileExpression: '&onCompile'

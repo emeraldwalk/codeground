@@ -1,1 +1,1 @@
-var codePlaygroundModule = angular.module('emeraldwalk.code-playground', []);
+var codegroundModule = angular.module('emeraldwalk.code-playground', []);

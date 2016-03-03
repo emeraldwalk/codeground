@@ -1,4 +1,4 @@
-namespace Emeraldwalk.CodePlayground {
+namespace Emeraldwalk.Codeground {
 	export interface IInjectableConstructor {
 		new (...args: Array<any>): any;
 		injectAs?: string;
