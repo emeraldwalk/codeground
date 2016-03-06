@@ -6,11 +6,19 @@ namespace Emeraldwalk.Codeground.Components {
 			cssContent: '=?',
 			jsContent: '=?',
 			htmlContent: '=?',
+			moduleName: '@',
+			moduleDependencies: '=?'
 		},
 		template: `<div></div>`
 	})
 	@inject('$scope', '$element', '$compile')
 	export class CodeSample {
+		private static _lastId: number = 0;
+		private _id: number;
+		private get id(): string {
+			return `code-sample-${this._id}`;
+		}
+
 		private _$scope: ng.IScope;
 		private _iframeElement: JQuery;
 		private _$compile: ng.ICompileService;
@@ -19,6 +27,10 @@ namespace Emeraldwalk.Codeground.Components {
 			$scope: ng.IScope,
 			$element: ng.IRootElementService,
 			$compile: ng.ICompileService) {
+
+			this._id = ++CodeSample._lastId;
+			$element.attr('id', this.id);
+			$element.append(`<header>Code Sample (${this.moduleName} module)</header>`);
 
 			this.styleUrls = [];
 			this.jsUrls = [];
@@ -42,13 +54,42 @@ namespace Emeraldwalk.Codeground.Components {
 		public jsContent: string;
 		public htmlContent: string;
 
-		private _rebuild(): void {
-			this._buildHead();
-			this._buildBody();
+		private _moduleName: string;
+		public get moduleName(): string {
+			return this._moduleName || 'codeSampleModule';
+		}
+		public set moduleName(value: string) {
+			this._moduleName = value;
 		}
 
-		private _buildHead(): void {
+		public moduleDependencies: Array<string>;
+
+		private _getModuleCreationString(): string {
+			var moduleName = this.moduleName;
+
+			var dependencyStr: string = this.moduleDependencies && this.moduleDependencies.length > 0
+				? `'${this.moduleDependencies.join("', '")}'`
+				: '';
+
+			return `var ${moduleName} = angular.module('${moduleName}', [${dependencyStr}]);`;
+		}
+
+		private _rebuild(): void {
 			var iHeadElement = this._iframeElement.contents().find('head').empty();
+			var iBodyElement = this._iframeElement.contents().find('body').empty();
+
+			this._buildHead(iHeadElement);
+
+			// adding a sub element that can be removed and re-bootstrapped
+			var appWrapperElement = $('<div class="app-wrapper"></div>');
+			appWrapperElement.appendTo(iBodyElement);
+			appWrapperElement.append(this.htmlContent);
+
+			angular.bootstrap(appWrapperElement.get(0), [this.moduleName]);
+		}
+
+		private _buildHead(iHeadElement: JQuery): void {
+
 			var iElementRaw: HTMLIFrameElement = <HTMLIFrameElement>this._iframeElement.get(0);
 
 			// clone page styles to iframe head
@@ -60,7 +101,7 @@ namespace Emeraldwalk.Codeground.Components {
 				iHeadElement.append(`<link rel="${url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet'}" type="text/css" href="${url}">`);
 			});
 
-			// create style tag for raw css wrapped in a sandboxed context
+			// create style tag for raw css
 			if (this.cssContent) {
 				iHeadElement.append(`<style type="text/css">${this.cssContent}</style>`);
 			}
@@ -75,23 +116,12 @@ namespace Emeraldwalk.Codeground.Components {
 			});
 
 			// create script tag for raw .js
-			if (this.jsContent) {
-				iHeadElement.append(`<script type="text/javascript">${this.jsContent}</script>`);
+			// includes a codeSampleModule declaration + any jsContent provided to the directive
+			var jsContent = this._getModuleCreationString();
+			if(this.jsContent) {
+				jsContent = `${jsContent} ${this.jsContent}`;
 			}
-		}
-
-		private _buildBody(): void {
-			var iBodyElement = this._iframeElement.contents().find('body');
-			iBodyElement.empty();
-
-			try {
-				var templateFn = this._$compile(this.htmlContent);
-				var html = templateFn(this._$scope);
-				iBodyElement.append(html);
-			}
-			catch (e) {
-				console.log(e);
-			}
+			iHeadElement.append(`<script type="text/javascript">${jsContent}</script>`);
 		}
 	}
 }

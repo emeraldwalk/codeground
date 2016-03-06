@@ -4,7 +4,7 @@ namespace Emeraldwalk.Codeground.Components {
 			source: '=?',
 			onCompileExpression: '&onCompile'
 		},
-		template: `<div><h2>{{vm.mode}}</h2><div></div></div>`
+		template: `<div><header>{{vm.mode}}</header><div></div></div>`
 	})
 	@inject('$scope', '$element', '$timeout')
 	export class TsEditorComponent extends AceEditorComponent {

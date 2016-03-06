@@ -13,6 +13,18 @@ var Emeraldwalk;
 (function (Emeraldwalk) {
     var Codeground;
     (function (Codeground) {
+        /*
+         * Expose decorators on a namespace.
+         */
+        function exposeDecorators(ns) {
+            ns.inject = inject;
+            ns.injected = injected;
+            ns.service = service;
+            ns.decorator = decorator;
+            ns.controller = controller;
+            ns.component = component;
+        }
+        Codeground.exposeDecorators = exposeDecorators;
         function inject() {
             var injectableKeys = [];
             for (var _i = 0; _i < arguments.length; _i++) {
@@ -162,7 +174,7 @@ var Emeraldwalk;
                             mode: '@',
                             source: '=?'
                         },
-                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
+                        template: "<div><header>{{vm.mode}}</header><div></div></div>"
                     }),
                     Codeground.inject('$scope', '$element', '$timeout')
                 ], AceEditorComponent);
@@ -181,6 +193,9 @@ var Emeraldwalk;
             var CodeSample = (function () {
                 function CodeSample($scope, $element, $compile) {
                     var _this = this;
+                    this._id = ++CodeSample._lastId;
+                    $element.attr('id', this.id);
+                    $element.append("<header>Code Sample (" + this.moduleName + " module)</header>");
                     this.styleUrls = [];
                     this.jsUrls = [];
                     this._$scope = $scope;
@@ -194,12 +209,41 @@ var Emeraldwalk;
                         function () { return _this.htmlContent; }
                     ], function () { return _this._rebuild(); });
                 }
-                CodeSample.prototype._rebuild = function () {
-                    this._buildHead();
-                    this._buildBody();
+                Object.defineProperty(CodeSample.prototype, "id", {
+                    get: function () {
+                        return "code-sample-" + this._id;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                Object.defineProperty(CodeSample.prototype, "moduleName", {
+                    get: function () {
+                        return this._moduleName || 'codeSampleModule';
+                    },
+                    set: function (value) {
+                        this._moduleName = value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                });
+                CodeSample.prototype._getModuleCreationString = function () {
+                    var moduleName = this.moduleName;
+                    var dependencyStr = this.moduleDependencies && this.moduleDependencies.length > 0
+                        ? "'" + this.moduleDependencies.join("', '") + "'"
+                        : '';
+                    return "var " + moduleName + " = angular.module('" + moduleName + "', [" + dependencyStr + "]);";
                 };
-                CodeSample.prototype._buildHead = function () {
+                CodeSample.prototype._rebuild = function () {
                     var iHeadElement = this._iframeElement.contents().find('head').empty();
+                    var iBodyElement = this._iframeElement.contents().find('body').empty();
+                    this._buildHead(iHeadElement);
+                    // adding a sub element that can be removed and re-bootstrapped
+                    var appWrapperElement = $('<div class="app-wrapper"></div>');
+                    appWrapperElement.appendTo(iBodyElement);
+                    appWrapperElement.append(this.htmlContent);
+                    angular.bootstrap(appWrapperElement.get(0), [this.moduleName]);
+                };
+                CodeSample.prototype._buildHead = function (iHeadElement) {
                     var iElementRaw = this._iframeElement.get(0);
                     // clone page styles to iframe head
                     $("head link[type='text/css']").clone().appendTo(iHeadElement);
@@ -208,7 +252,7 @@ var Emeraldwalk;
                     this.styleUrls.forEach(function (url) {
                         iHeadElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
                     });
-                    // create style tag for raw css wrapped in a sandboxed context
+                    // create style tag for raw css
                     if (this.cssContent) {
                         iHeadElement.append("<style type=\"text/css\">" + this.cssContent + "</style>");
                     }
@@ -221,22 +265,14 @@ var Emeraldwalk;
                         iElementRaw.contentWindow.document.head.appendChild(script);
                     });
                     // create script tag for raw .js
+                    // includes a codeSampleModule declaration + any jsContent provided to the directive
+                    var jsContent = this._getModuleCreationString();
                     if (this.jsContent) {
-                        iHeadElement.append("<script type=\"text/javascript\">" + this.jsContent + "</script>");
+                        jsContent = jsContent + " " + this.jsContent;
                     }
+                    iHeadElement.append("<script type=\"text/javascript\">" + jsContent + "</script>");
                 };
-                CodeSample.prototype._buildBody = function () {
-                    var iBodyElement = this._iframeElement.contents().find('body');
-                    iBodyElement.empty();
-                    try {
-                        var templateFn = this._$compile(this.htmlContent);
-                        var html = templateFn(this._$scope);
-                        iBodyElement.append(html);
-                    }
-                    catch (e) {
-                        console.log(e);
-                    }
-                };
+                CodeSample._lastId = 0;
                 CodeSample = __decorate([
                     Codeground.component(codegroundModule, 'ewCodeSample', {
                         scope: {
@@ -245,6 +281,8 @@ var Emeraldwalk;
                             cssContent: '=?',
                             jsContent: '=?',
                             htmlContent: '=?',
+                            moduleName: '@',
+                            moduleDependencies: '=?'
                         },
                         template: "<div></div>"
                     }),
@@ -273,7 +311,7 @@ var Emeraldwalk;
                         scope: {
                             source: '=?'
                         },
-                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
+                        template: "<div><header>{{vm.mode}}</header><div></div></div>"
                     }),
                     Codeground.inject('$scope', '$element', '$timeout')
                 ], JsEditorComponent);
@@ -308,7 +346,7 @@ var Emeraldwalk;
                             source: '=?',
                             onCompileExpression: '&onCompile'
                         },
-                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
+                        template: "<div><header>{{vm.mode}}</header><div></div></div>"
                     }),
                     Codeground.inject('$scope', '$element', '$timeout', 'lessService')
                 ], LessEditorComponent);
@@ -343,7 +381,7 @@ var Emeraldwalk;
                             source: '=?',
                             onCompileExpression: '&onCompile'
                         },
-                        template: "<div><h2>{{vm.mode}}</h2><div></div></div>"
+                        template: "<div><header>{{vm.mode}}</header><div></div></div>"
                     }),
                     Codeground.inject('$scope', '$element', '$timeout')
                 ], TsEditorComponent);
@@ -351,6 +389,61 @@ var Emeraldwalk;
             }(Components.AceEditorComponent));
             Components.TsEditorComponent = TsEditorComponent;
         })(Components = Codeground.Components || (Codeground.Components = {}));
+    })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
+})(Emeraldwalk || (Emeraldwalk = {}));
+var Emeraldwalk;
+(function (Emeraldwalk) {
+    var Codeground;
+    (function (Codeground) {
+        var Services;
+        (function (Services) {
+            /**
+             * Helper to instantiate a LazyLoadChain.
+             */
+            function lazyLoad(module) {
+                return new LazyLoadChain(module);
+            }
+            Services.lazyLoad = lazyLoad;
+            /**
+             * Registering angular services, controllers, etc. can usually only be done pre-bootstrapping.
+             * The underlying registration code is available at config time via various providers.
+             * This class can swap out the standard registration methods with ones that can be used for
+             * registering providers after bootstrapping occurs.
+             */
+            var LazyLoadChain = (function () {
+                function LazyLoadChain(module) {
+                    this._module = module;
+                }
+                /*
+                 * Replacing controller function with a version that will stick around for lazy loading.
+                 */
+                LazyLoadChain.prototype.controller = function () {
+                    var module = this._module;
+                    module.config(['$controllerProvider', function ($controllerProvider) {
+                            module.controller = function (name, controllerConstructor) {
+                                $controllerProvider.register(name, controllerConstructor);
+                                return this;
+                            };
+                        }]);
+                    return this;
+                };
+                /*
+                 * Replacing service function with a version that will stick around for lazy loading.
+                 */
+                LazyLoadChain.prototype.service = function () {
+                    var module = this._module;
+                    module.config(['$provide', function ($provide) {
+                            module.service = function (name, serviceConstructor) {
+                                $provide.service(name, serviceConstructor);
+                                return this;
+                            };
+                        }]);
+                    return this;
+                };
+                return LazyLoadChain;
+            }());
+            Services.LazyLoadChain = LazyLoadChain;
+        })(Services = Codeground.Services || (Codeground.Services = {}));
     })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
 var Emeraldwalk;
@@ -389,16 +482,17 @@ var Emeraldwalk;
     (function (Codeground) {
         var Samples;
         (function (Samples) {
+            // expose decorators on global namespace
+            Codeground.exposeDecorators(window);
+            // setup controller and service functions for lazy loading
+            Codeground.Services.lazyLoad(simpleSampleModule)
+                .controller()
+                .service();
             var SimpleController = (function () {
-                function SimpleController($scope) {
-                    var _this = this;
-                    $scope.$watch(function () { return _this.tsOutput; }, function () {
-                        console.log(_this.tsOutput);
-                    });
+                function SimpleController() {
                 }
                 SimpleController = __decorate([
-                    Codeground.controller(codegroundModule, 'SimpleController'),
-                    Codeground.inject('$scope')
+                    Codeground.controller(codegroundModule, 'SimpleController')
                 ], SimpleController);
                 return SimpleController;
             }());

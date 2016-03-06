@@ -1,4 +1,16 @@
 namespace Emeraldwalk.Codeground {
+	/*
+	 * Expose decorators on a namespace.
+	 */
+	export function exposeDecorators(ns: any) {
+		ns.inject = inject;
+		ns.injected = injected;
+		ns.service = service;
+		ns.decorator = decorator;
+		ns.controller = controller;
+		ns.component = component;
+	}
+
 	export interface IInjectableConstructor {
 		new (...args: Array<any>): any;
 		injectAs?: string;
