@@ -484,10 +484,12 @@ var Emeraldwalk;
         (function (Samples) {
             // expose decorators on global namespace
             Codeground.exposeDecorators(window);
-            // setup controller and service functions for lazy loading
-            Codeground.Services.lazyLoad(simpleSampleModule)
-                .controller()
-                .service();
+            // Deprecated: don't need this anymore since I figured out how
+            // to bootstrap a sub app inside of the code sample component.
+            // // setup controller and service functions for lazy loading
+            // Services.lazyLoad(simpleSampleModule)
+            // 	.controller()
+            // 	.service();
             var SimpleController = (function () {
                 function SimpleController() {
                 }
