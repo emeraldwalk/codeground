@@ -18,7 +18,6 @@
 		"components/ts_editor.ts",
 		"services/lazy_load_service.ts",
 		"services/less_service.ts",
-		"samples/basic_ts_ng/basic_ts_ng.ts",
-		"samples/simple_controller.ts"
+		"samples/basic_ts_ng/basic_ts_ng.ts"
 	]
 }

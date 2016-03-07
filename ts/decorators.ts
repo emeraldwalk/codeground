@@ -11,6 +11,10 @@ namespace Emeraldwalk.Codeground {
 		ns.component = component;
 	}
 
+	// exposing on window to make it easier to use
+	// decorators inside ts editor
+	exposeDecorators(window);
+
 	export interface IInjectableConstructor {
 		new (...args: Array<any>): any;
 		injectAs?: string;

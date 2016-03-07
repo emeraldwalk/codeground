@@ -39,6 +39,9 @@ var Emeraldwalk;
             ns.component = component;
         }
         Codeground.exposeDecorators = exposeDecorators;
+        // exposing on window to make it easier to use
+        // decorators inside ts editor
+        exposeDecorators(window);
         function inject() {
             var injectableKeys = [];
             for (var _i = 0; _i < arguments.length; _i++) {
