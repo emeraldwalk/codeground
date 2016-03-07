@@ -219,6 +219,7 @@ var Emeraldwalk;
                     this._iframeElement = $('<iframe></iframe>').appendTo($element);
                     this._$compile = $compile;
                     $scope.$watchGroup([
+                        function () { return $('head style').length; },
                         function () { return _this.styleUrls; },
                         function () { return _this.jsUrls; },
                         function () { return _this.cssContent; },
@@ -500,10 +501,15 @@ var Emeraldwalk;
         (function (Samples) {
             var BasicTsNgSample = (function () {
                 function BasicTsNgSample() {
+                    this.htmlOutput = '<div ng-controller="MyController as vm">{{vm.message}}</div>';
+                    this.lessSource =
+                        "body {\n\tpadding: 10px;\n\tbackground: green;\n\tcolor: white;\n}";
+                    this.tsSource =
+                        "@controller(codeSampleModule, 'MyController')\nclass MyController {\n\tpublic message: string = 'Hello';\n}";
                 }
                 BasicTsNgSample = __decorate([
                     Codeground.component(ewCodegroundModule, 'ewBasicTsNgSample', {
-                        template: "<div>\n\t<h1>Codeground Sample</h1>\n\t<p>This sample shows .less and .ts compilation components with angular.js support.</p>\n\t<div class=\"clearfix\">\n\t\t<div class=\"pull-left\">\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ace-editor source=\"vm.htmlOutput\"></ew-ace-editor>\n\t\t\t\t<ew-less-editor on-compile=\"vm.lessOutput = value\"></ew-less-editor>\n\t\t\t</div>\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ts-editor on-compile=\"vm.tsOutput = value\"></ew-ts-editor>\n\t\t\t\t<ew-js-editor source=\"vm.tsOutput\"></ew-js-editor>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"pull-left output\">\n\t\t\t<ew-code-sample module-name=\"codeSampleModule\"\n\t\t\t\t\t\t\tmodule-dependencies=\"['ewCodegroundModule']\"\n\t\t\t\t\t\t\tcss-content=\"vm.lessOutput\"\n\t\t\t\t\t\t\tjs-content=\"vm.tsOutput\"\n\t\t\t\t\t\t\thtml-content=\"vm.htmlOutput\"></ew-code-sample>\n\t\t</div>\n\t</div>\n</div>"
+                        template: "<div>\n\t<h1>Codeground Sample</h1>\n\t<p>This sample shows .less and .ts compilation components with angular.js support.</p>\n\t<div class=\"clearfix\">\n\t\t<div class=\"pull-left\">\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ace-editor source=\"vm.htmlOutput\"></ew-ace-editor>\n\t\t\t\t<ew-less-editor source=\"vm.lessSource\" on-compile=\"vm.lessOutput = value\"></ew-less-editor>\n\t\t\t</div>\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ts-editor source=\"vm.tsSource\" on-compile=\"vm.tsOutput = value\"></ew-ts-editor>\n\t\t\t\t<ew-js-editor source=\"vm.tsOutput\"></ew-js-editor>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"pull-left output\">\n\t\t\t<ew-code-sample module-name=\"codeSampleModule\"\n\t\t\t\t\t\t\tmodule-dependencies=\"['ewCodegroundModule']\"\n\t\t\t\t\t\t\tcss-content=\"vm.lessOutput\"\n\t\t\t\t\t\t\tjs-content=\"vm.tsOutput\"\n\t\t\t\t\t\t\thtml-content=\"vm.htmlOutput\"></ew-code-sample>\n\t\t</div>\n\t</div>\n</div>"
                     })
                 ], BasicTsNgSample);
                 return BasicTsNgSample;

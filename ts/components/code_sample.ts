@@ -40,6 +40,7 @@ namespace Emeraldwalk.Codeground.Components {
 			this._$compile = $compile;
 
 			$scope.$watchGroup([
+				() => $('head style').length, //account for certain styles that appear to be added then removed by .less compiler
 				() => this.styleUrls,
 				() => this.jsUrls,
 				() => this.cssContent,
