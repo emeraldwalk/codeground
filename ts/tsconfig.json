@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"outFile": "../out/emeraldwalk.code_playground.js",
+		"outFile": "../out/emeraldwalk-codeground.js",
 		"sourceMap": true,
 		"target": "es5",
 		"experimentalDecorators": true,
@@ -8,6 +8,7 @@
 	},
 	"files": [
 		"../typings/tsd.d.ts",
+		"_license.ts",
 		"decorators.ts",
 		"module_init.ts",
 		"components/ace_editor.ts",
