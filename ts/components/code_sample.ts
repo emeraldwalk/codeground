@@ -1,5 +1,5 @@
 namespace Emeraldwalk.Codeground.Components {
-	@component(codegroundModule, 'ewCodeSample', {
+	@component(ewCodegroundModule, 'ewCodeSample', {
 		scope: {
 			styleUrls: '=?',
 			jsUrls: '=?',

@@ -1,5 +1,5 @@
 namespace Emeraldwalk.Codeground.Services {
-	@service(codegroundModule, 'lessService')
+	@service(ewCodegroundModule, 'lessService')
 	export class LessService {
 		/** Compile less to css using a temporary <style> tag and less compiler. */
 		public compile(lessStr: string): string {

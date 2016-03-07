@@ -10,7 +10,7 @@
 	<script src="../node_modules/typescript/lib/typescript.js"></script>
 	<script src="../bower_components/jquery/dist/jquery.js"></script>
 	<script src="../bower_components/angular/angular.js"></script>
-	<script src="../out/emeraldwalk.code_playground.js"></script>
+	<script src="../out/emeraldwalk-codeground.js"></script>
 
 	<script>
 		less = {
@@ -20,31 +20,8 @@
 	<script src="../bower_components/less/dist/less.min.js"></script>
 </head>
 
-<body ng-app="simpleSampleModule">
-	<h1>Codeground Sample</h1>
-	<p>This sample shows .less and .ts compilation components with angular.js support.</p>
-	<div ng-controller="SimpleController as vm">
-		<div class="pull-left">
-			<div class="split-editor">
-				<ew-ace-editor source="vm.htmlOutput"></ew-ace-editor>
-				<ew-less-editor on-compile="vm.lessOutput = value"></ew-less-editor>
-			</div>
-			<!--<div class="split-editor">
-				<ew-ace-editor mode="css" source="vm.lessOutput"></ew-ace-editor>
-			</div>-->
-			<div class="split-editor">
-				<ew-ts-editor on-compile="vm.tsOutput = value"></ew-ts-editor>
-				<ew-js-editor source="vm.tsOutput"></ew-js-editor>
-			</div>
-		</div>
-		<div class="pull-left output">
-			<ew-code-sample module-name="codeSampleModule"
-			                module-dependencies="['emeraldwalk.code-playground']"
-							css-content="vm.lessOutput"
-							js-content="vm.tsOutput"
-							html-content="vm.htmlOutput"></ew-code-sample>
-		</div>
-	</div>
+<body ng-app="ewCodegroundModule">
+	<ew-basic-ts-ng-sample></ew-basic-ts-ng-sample>
 </body>
 
 </html>

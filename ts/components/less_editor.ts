@@ -1,7 +1,7 @@
 declare var less: {refresh()};
 
 namespace Emeraldwalk.Codeground.Components {
-	@component(codegroundModule, 'ewLessEditor', {
+	@component(ewCodegroundModule, 'ewLessEditor', {
 		scope: {
 			source: '=?',
 			onCompileExpression: '&onCompile'

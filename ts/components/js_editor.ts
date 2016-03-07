@@ -1,5 +1,5 @@
 namespace Emeraldwalk.Codeground.Components {
-	@component(codegroundModule, 'ewJsEditor', {
+	@component(ewCodegroundModule, 'ewJsEditor', {
 		scope: {
 			source: '=?'
 		},

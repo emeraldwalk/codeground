@@ -1,5 +1,5 @@
 namespace Emeraldwalk.Codeground.Components {
-	@component(codegroundModule, 'ewAceEditor', {
+	@component(ewCodegroundModule, 'ewAceEditor', {
 		scope: {
 			mode: '@',
 			source: '=?'

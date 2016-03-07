@@ -127,7 +127,7 @@ var Emeraldwalk;
         Codeground.component = component;
     })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
-var codegroundModule = angular.module('emeraldwalk.code-playground', []);
+var ewCodegroundModule = angular.module('ewCodegroundModule', []);
 var Emeraldwalk;
 (function (Emeraldwalk) {
     var Codeground;
@@ -183,7 +183,7 @@ var Emeraldwalk;
                     configurable: true
                 });
                 AceEditorComponent = __decorate([
-                    Codeground.component(codegroundModule, 'ewAceEditor', {
+                    Codeground.component(ewCodegroundModule, 'ewAceEditor', {
                         scope: {
                             mode: '@',
                             source: '=?'
@@ -288,7 +288,7 @@ var Emeraldwalk;
                 };
                 CodeSample._lastId = 0;
                 CodeSample = __decorate([
-                    Codeground.component(codegroundModule, 'ewCodeSample', {
+                    Codeground.component(ewCodegroundModule, 'ewCodeSample', {
                         scope: {
                             styleUrls: '=?',
                             jsUrls: '=?',
@@ -321,7 +321,7 @@ var Emeraldwalk;
                     this.mode = 'javascript';
                 }
                 JsEditorComponent = __decorate([
-                    Codeground.component(codegroundModule, 'ewJsEditor', {
+                    Codeground.component(ewCodegroundModule, 'ewJsEditor', {
                         scope: {
                             source: '=?'
                         },
@@ -355,7 +355,7 @@ var Emeraldwalk;
                     });
                 }
                 LessEditorComponent = __decorate([
-                    Codeground.component(codegroundModule, 'ewLessEditor', {
+                    Codeground.component(ewCodegroundModule, 'ewLessEditor', {
                         scope: {
                             source: '=?',
                             onCompileExpression: '&onCompile'
@@ -390,7 +390,7 @@ var Emeraldwalk;
                     });
                 }
                 TsEditorComponent = __decorate([
-                    Codeground.component(codegroundModule, 'ewTsEditor', {
+                    Codeground.component(ewCodegroundModule, 'ewTsEditor', {
                         scope: {
                             source: '=?',
                             onCompileExpression: '&onCompile'
@@ -481,7 +481,7 @@ var Emeraldwalk;
                     return result;
                 };
                 LessService = __decorate([
-                    Codeground.service(codegroundModule, 'lessService')
+                    Codeground.service(ewCodegroundModule, 'lessService')
                 ], LessService);
                 return LessService;
             }());
@@ -489,30 +489,23 @@ var Emeraldwalk;
         })(Services = Codeground.Services || (Codeground.Services = {}));
     })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
-var simpleSampleModule = angular.module('simpleSampleModule', ['emeraldwalk.code-playground']);
 var Emeraldwalk;
 (function (Emeraldwalk) {
     var Codeground;
     (function (Codeground) {
         var Samples;
         (function (Samples) {
-            // expose decorators on global namespace
-            Codeground.exposeDecorators(window);
-            // Deprecated: don't need this anymore since I figured out how
-            // to bootstrap a sub app inside of the code sample component.
-            // // setup controller and service functions for lazy loading
-            // Services.lazyLoad(simpleSampleModule)
-            // 	.controller()
-            // 	.service();
-            var SimpleController = (function () {
-                function SimpleController() {
+            var BasicTsNgSample = (function () {
+                function BasicTsNgSample() {
                 }
-                SimpleController = __decorate([
-                    Codeground.controller(codegroundModule, 'SimpleController')
-                ], SimpleController);
-                return SimpleController;
+                BasicTsNgSample = __decorate([
+                    Codeground.component(ewCodegroundModule, 'ewBasicTsNgSample', {
+                        template: "<div>\n\t<h1>Codeground Sample</h1>\n\t<p>This sample shows .less and .ts compilation components with angular.js support.</p>\n\t<div class=\"clearfix\">\n\t\t<div class=\"pull-left\">\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ace-editor source=\"vm.htmlOutput\"></ew-ace-editor>\n\t\t\t\t<ew-less-editor on-compile=\"vm.lessOutput = value\"></ew-less-editor>\n\t\t\t</div>\n\t\t\t<div class=\"split-editor\">\n\t\t\t\t<ew-ts-editor on-compile=\"vm.tsOutput = value\"></ew-ts-editor>\n\t\t\t\t<ew-js-editor source=\"vm.tsOutput\"></ew-js-editor>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"pull-left output\">\n\t\t\t<ew-code-sample module-name=\"codeSampleModule\"\n\t\t\t\t\t\t\tmodule-dependencies=\"['ewCodegroundModule']\"\n\t\t\t\t\t\t\tcss-content=\"vm.lessOutput\"\n\t\t\t\t\t\t\tjs-content=\"vm.tsOutput\"\n\t\t\t\t\t\t\thtml-content=\"vm.htmlOutput\"></ew-code-sample>\n\t\t</div>\n\t</div>\n</div>"
+                    })
+                ], BasicTsNgSample);
+                return BasicTsNgSample;
             }());
-            Samples.SimpleController = SimpleController;
+            Samples.BasicTsNgSample = BasicTsNgSample;
         })(Samples = Codeground.Samples || (Codeground.Samples = {}));
     })(Codeground = Emeraldwalk.Codeground || (Emeraldwalk.Codeground = {}));
 })(Emeraldwalk || (Emeraldwalk = {}));
