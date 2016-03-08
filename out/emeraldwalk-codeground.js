@@ -208,7 +208,7 @@ var Emeraldwalk;
         var Components;
         (function (Components) {
             var CodeSample = (function () {
-                function CodeSample($scope, $element, $compile) {
+                function CodeSample($scope, $element, $compile, $timeout) {
                     var _this = this;
                     this._id = ++CodeSample._lastId;
                     $element.attr('id', this.id);
@@ -218,6 +218,7 @@ var Emeraldwalk;
                     this._$scope = $scope;
                     this._iframeElement = $('<iframe></iframe>').appendTo($element);
                     this._$compile = $compile;
+                    this._$timeout = $timeout;
                     $scope.$watchGroup([
                         function () { return $('head style').length; },
                         function () { return _this.styleUrls; },
@@ -226,6 +227,9 @@ var Emeraldwalk;
                         function () { return _this.jsContent; },
                         function () { return _this.htmlContent; }
                     ], function () { return _this._rebuild(); });
+                    $scope.$watch(function () { return _this._iBodyElement && _this._iBodyElement.get(0).offsetHeight; }, function () {
+                        _this._resizeIframe();
+                    });
                 }
                 Object.defineProperty(CodeSample.prototype, "id", {
                     get: function () {
@@ -244,6 +248,14 @@ var Emeraldwalk;
                     enumerable: true,
                     configurable: true
                 });
+                CodeSample.prototype._resizeIframe = function () {
+                    var _this = this;
+                    this._$timeout.cancel(this._resizeIframePromise);
+                    this._resizeIframePromise = this._$timeout(function () {
+                        var height = _this._iBodyElement.get(0).offsetHeight;
+                        _this._iframeElement.height(height);
+                    });
+                };
                 CodeSample.prototype._getModuleCreationString = function () {
                     var moduleName = this.moduleName;
                     var dependencyStr = this.moduleDependencies && this.moduleDependencies.length > 0
@@ -252,27 +264,30 @@ var Emeraldwalk;
                     return "var " + moduleName + " = angular.module('" + moduleName + "', [" + dependencyStr + "]);";
                 };
                 CodeSample.prototype._rebuild = function () {
-                    var iHeadElement = this._iframeElement.contents().find('head').empty();
-                    var iBodyElement = this._iframeElement.contents().find('body').empty();
-                    this._buildHead(iHeadElement);
+                    this._iframeElement.height(0);
+                    this._iHeadElement = this._iframeElement.contents().find('head').empty();
+                    this._iBodyElement = this._iframeElement.contents().find('body').empty();
+                    this._buildHead();
                     // adding a sub element that can be removed and re-bootstrapped
                     var appWrapperElement = $('<div class="app-wrapper"></div>');
-                    appWrapperElement.appendTo(iBodyElement);
+                    appWrapperElement.appendTo(this._iBodyElement);
                     appWrapperElement.append(this.htmlContent);
                     angular.bootstrap(appWrapperElement.get(0), [this.moduleName]);
+                    this._resizeIframe();
                 };
-                CodeSample.prototype._buildHead = function (iHeadElement) {
+                CodeSample.prototype._buildHead = function () {
+                    var _this = this;
                     var iElementRaw = this._iframeElement.get(0);
                     // clone page styles to iframe head
-                    $("head link[type='text/css']").clone().appendTo(iHeadElement);
-                    $("head style").clone().appendTo(iHeadElement);
+                    $("head link[type='text/css']").clone().appendTo(this._iHeadElement);
+                    $("head style").clone().appendTo(this._iHeadElement);
                     // create links for style urls
                     this.styleUrls.forEach(function (url) {
-                        iHeadElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
+                        _this._iHeadElement.append("<link rel=\"" + (url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet') + "\" type=\"text/css\" href=\"" + url + "\">");
                     });
                     // create style tag for raw css
                     if (this.cssContent) {
-                        iHeadElement.append("<style type=\"text/css\">" + this.cssContent + "</style>");
+                        this._iHeadElement.append("<style type=\"text/css\">" + this.cssContent + "</style>");
                     }
                     // create script tags for all .js urls
                     this.jsUrls.forEach(function (url) {
@@ -288,7 +303,7 @@ var Emeraldwalk;
                     if (this.jsContent) {
                         jsContent = jsContent + " " + this.jsContent;
                     }
-                    iHeadElement.append("<script type=\"text/javascript\">" + jsContent + "</script>");
+                    this._iHeadElement.append("<script type=\"text/javascript\">" + jsContent + "</script>");
                 };
                 CodeSample._lastId = 0;
                 CodeSample = __decorate([
@@ -304,7 +319,7 @@ var Emeraldwalk;
                         },
                         template: "<div></div>"
                     }),
-                    Codeground.inject('$scope', '$element', '$compile')
+                    Codeground.inject('$scope', '$element', '$compile', '$timeout')
                 ], CodeSample);
                 return CodeSample;
             }());
@@ -503,7 +518,7 @@ var Emeraldwalk;
                 function BasicTsNgSample() {
                     this.htmlOutput = '<div ng-controller="MyController as vm">{{vm.message}}</div>';
                     this.lessSource =
-                        "body {\n\tpadding: 10px;\n\tbackground: green;\n\tcolor: white;\n}";
+                        "body {\n\tpadding: 10px;\n\tbackground: green;\n\tcolor: white;\n\n\tdiv {\n\t\theight: 400px;\n\t}\n}";
                     this.tsSource =
                         "@controller(codeSampleModule, 'MyController')\nclass MyController {\n\tpublic message: string = 'Hello';\n}";
                 }

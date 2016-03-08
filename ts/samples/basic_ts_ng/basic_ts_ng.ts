@@ -33,6 +33,10 @@ namespace Emeraldwalk.Codeground.Samples {
 	padding: 10px;
 	background: green;
 	color: white;
+
+	div {
+		height: 400px;
+	}
 }`;
 			this.tsSource =
 `@controller(codeSampleModule, 'MyController')

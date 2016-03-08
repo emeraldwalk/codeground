@@ -11,7 +11,7 @@ namespace Emeraldwalk.Codeground.Components {
 		},
 		template: `<div></div>`
 	})
-	@inject('$scope', '$element', '$compile')
+	@inject('$scope', '$element', '$compile', '$timeout')
 	export class CodeSample {
 		private static _lastId: number = 0;
 		private _id: number;
@@ -21,12 +21,16 @@ namespace Emeraldwalk.Codeground.Components {
 
 		private _$scope: ng.IScope;
 		private _iframeElement: JQuery;
+		private _iHeadElement: JQuery;
+		private _iBodyElement: JQuery;
 		private _$compile: ng.ICompileService;
+		private _$timeout: ng.ITimeoutService;
 
 		constructor(
 			$scope: ng.IScope,
 			$element: ng.IRootElementService,
-			$compile: ng.ICompileService) {
+			$compile: ng.ICompileService,
+			$timeout: ng.ITimeoutService) {
 
 			this._id = ++CodeSample._lastId;
 			$element.attr('id', this.id);
@@ -38,6 +42,7 @@ namespace Emeraldwalk.Codeground.Components {
 			this._$scope = $scope;
 			this._iframeElement = $('<iframe></iframe>').appendTo($element);
 			this._$compile = $compile;
+			this._$timeout = $timeout;
 
 			$scope.$watchGroup([
 				() => $('head style').length, //account for certain styles that appear to be added then removed by .less compiler
@@ -47,6 +52,10 @@ namespace Emeraldwalk.Codeground.Components {
 				() => this.jsContent,
 				() => this.htmlContent
 			], () => this._rebuild());
+
+			$scope.$watch(() => this._iBodyElement && this._iBodyElement.get(0).offsetHeight, () => {
+				this._resizeIframe();
+			});
 		}
 
 		public styleUrls: Array<string>;
@@ -65,6 +74,20 @@ namespace Emeraldwalk.Codeground.Components {
 
 		public moduleDependencies: Array<string>;
 
+		/**
+		 * Set height of iframe based on its content.
+		 * Using a cancellation mechanism so that only
+		 * the last resize call per digest cycle is processed.
+		 */
+		private _resizeIframePromise: ng.IPromise<any>;
+		private _resizeIframe(): void {
+			this._$timeout.cancel(this._resizeIframePromise);
+			this._resizeIframePromise = this._$timeout(() => {
+				var height = this._iBodyElement.get(0).offsetHeight;
+				this._iframeElement.height(height);
+			});
+		}
+
 		private _getModuleCreationString(): string {
 			var moduleName = this.moduleName;
 
@@ -76,35 +99,38 @@ namespace Emeraldwalk.Codeground.Components {
 		}
 
 		private _rebuild(): void {
-			var iHeadElement = this._iframeElement.contents().find('head').empty();
-			var iBodyElement = this._iframeElement.contents().find('body').empty();
+			this._iframeElement.height(0);
+			this._iHeadElement = this._iframeElement.contents().find('head').empty();
+			this._iBodyElement = this._iframeElement.contents().find('body').empty();
 
-			this._buildHead(iHeadElement);
+			this._buildHead();
 
 			// adding a sub element that can be removed and re-bootstrapped
 			var appWrapperElement = $('<div class="app-wrapper"></div>');
-			appWrapperElement.appendTo(iBodyElement);
+			appWrapperElement.appendTo(this._iBodyElement);
 			appWrapperElement.append(this.htmlContent);
 
 			angular.bootstrap(appWrapperElement.get(0), [this.moduleName]);
+
+			this._resizeIframe();
 		}
 
-		private _buildHead(iHeadElement: JQuery): void {
+		private _buildHead(): void {
 
 			var iElementRaw: HTMLIFrameElement = <HTMLIFrameElement>this._iframeElement.get(0);
 
 			// clone page styles to iframe head
-			$("head link[type='text/css']").clone().appendTo(iHeadElement);
-			$("head style").clone().appendTo(iHeadElement);
+			$("head link[type='text/css']").clone().appendTo(this._iHeadElement);
+			$("head style").clone().appendTo(this._iHeadElement);
 
 			// create links for style urls
 			this.styleUrls.forEach(url => {
-				iHeadElement.append(`<link rel="${url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet'}" type="text/css" href="${url}">`);
+				this._iHeadElement.append(`<link rel="${url.match(/\.less$/) ? 'stylesheet/less' : 'stylesheet'}" type="text/css" href="${url}">`);
 			});
 
 			// create style tag for raw css
 			if (this.cssContent) {
-				iHeadElement.append(`<style type="text/css">${this.cssContent}</style>`);
+				this._iHeadElement.append(`<style type="text/css">${this.cssContent}</style>`);
 			}
 
 			// create script tags for all .js urls
@@ -122,7 +148,7 @@ namespace Emeraldwalk.Codeground.Components {
 			if(this.jsContent) {
 				jsContent = `${jsContent} ${this.jsContent}`;
 			}
-			iHeadElement.append(`<script type="text/javascript">${jsContent}</script>`);
+			this._iHeadElement.append(`<script type="text/javascript">${jsContent}</script>`);
 		}
 	}
 }
